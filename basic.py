@@ -1,7 +1,7 @@
 import torch
 
 
-class LatentTransformBrightness:
+class LTBrightness:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -25,7 +25,7 @@ class LatentTransformBrightness:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformContrast:
+class LTContrast:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -50,7 +50,7 @@ class LatentTransformContrast:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformExposure:
+class LTExposure:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -74,7 +74,7 @@ class LatentTransformExposure:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformGamma:
+class LTGamma:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -103,7 +103,7 @@ class LatentTransformGamma:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformInvert:
+class LTInvert:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -123,7 +123,7 @@ class LatentTransformInvert:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformClamp:
+class LTClamp:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -150,7 +150,7 @@ class LatentTransformClamp:
         return ({"samples": x, "downscale_ratio_spacial": 8},)
 
 
-class LatentTransformLevels:
+class LTLevels:
     @classmethod
     def INPUT_TYPES(cls):
         return {
