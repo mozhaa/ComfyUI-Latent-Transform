@@ -273,7 +273,7 @@ class LTWave:
                 ),
                 "frequency": (
                     "FLOAT",
-                    {"default": 5.0, "min": 0.1, "max": 20.0, "step": 0.1},
+                    {"default": 5.0, "min": 0.1, "max": 100.0, "step": 0.1},
                 ),
                 "phase": (
                     "FLOAT",
