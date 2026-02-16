@@ -1,5 +1,6 @@
 from .basic import (
     LTAdd,
+    LTBlend,
     LTBlur,
     LTGaussianNoise,
     LTMultiply,
@@ -12,6 +13,7 @@ NODE_CLASS_MAPPINGS = {
     "LT: Blur": LTBlur,
     "LT: Sharpen": LTSharpen,
     "LT: Gaussian Noise": LTGaussianNoise,
+    "LT: Blend": LTBlend,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -20,4 +22,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "LT: Blur": "LT: Blur",
     "LT: Sharpen": "LT: Sharpen",
     "LT: Gaussian Noise": "LT: Gaussian Noise",
+    "LT: Blend": "LT: Blend",
 }

@@ -189,3 +189,70 @@ class LTGaussianNoise:
             )
         new_latent["samples"] = x
         return (new_latent,)
+
+
+class LTBlend:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "latent_a": ("LATENT",),
+                "latent_b": ("LATENT",),
+                "mode": (
+                    ["normal", "multiply", "add", "subtract"],
+                    {"default": "normal"},
+                ),
+                "strength": (
+                    "FLOAT",
+                    {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01},
+                ),
+            },
+            "optional": {
+                "mask": ("MASK",),
+            },
+        }
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "apply"
+    CATEGORY = "latent/transform"
+
+    def apply(self, latent_a, latent_b, mode, strength, mask=None):
+        new_latent = latent_a.copy()
+        a = latent_a["samples"].clone()
+        b = latent_b["samples"].clone()
+
+        if a.shape != b.shape:
+            b = F.interpolate(b, size=(a.shape[2], a.shape[3]), mode="bilinear")
+
+        B, C, H, W = a.shape
+
+        if mask is not None:
+            mask = mask.to(a.device).float()
+
+            if mask.shape[1:] != (H, W):
+                mask = F.interpolate(
+                    mask.unsqueeze(1), size=(H, W), mode="bilinear"
+                ).squeeze(1)
+
+            if mask.shape[0] < B:
+                mask = mask.expand(B, -1, -1)
+            blend_factor = mask * strength
+            blend_factor = torch.clamp(blend_factor, 0.0, 1.0)
+            blend_factor = blend_factor.unsqueeze(1)
+        else:
+            blend_factor = torch.full((B, 1, H, W), strength, device=a.device)
+
+        if mode == "normal":
+            blended = b
+        elif mode == "multiply":
+            blended = a * b
+        elif mode == "add":
+            blended = a + b
+        elif mode == "subtract":
+            blended = a - b
+        else:
+            raise ValueError(f"Invalid blend mode: {mode}")
+
+        result = a * (1 - blend_factor) + blended * blend_factor
+        new_latent["samples"] = result
+        return (new_latent,)
