@@ -1,3 +1,5 @@
+import math
+
 import torch
 import torch.nn.functional as F
 
@@ -255,4 +257,83 @@ class LTBlend:
 
         result = a * (1 - blend_factor) + blended * blend_factor
         new_latent["samples"] = result
+        return (new_latent,)
+
+
+class LTWave:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "latent": ("LATENT",),
+                "channel": (["all", "c0", "c1", "c2", "c3"], {"default": "all"}),
+                "amplitude": (
+                    "FLOAT",
+                    {"default": 0.1, "min": -1.0, "max": 1.0, "step": 0.01},
+                ),
+                "frequency": (
+                    "FLOAT",
+                    {"default": 5.0, "min": 0.1, "max": 20.0, "step": 0.1},
+                ),
+                "phase": (
+                    "FLOAT",
+                    {"default": 0.0, "min": 0.0, "max": 6.283, "step": 0.1},
+                ),
+                "direction": (["horizontal", "vertical"], {"default": "horizontal"}),
+            }
+        }
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "apply"
+    CATEGORY = "latent/transform"
+
+    def apply(self, latent, channel, amplitude, frequency, phase, direction):
+        new_latent = latent.copy()
+        x = latent["samples"].clone()
+        B, C, H, W = x.shape
+
+        grid_y, grid_x = torch.meshgrid(
+            torch.linspace(-1, 1, H, device=x.device),
+            torch.linspace(-1, 1, W, device=x.device),
+            indexing="ij",
+        )
+
+        grid_x = grid_x.unsqueeze(0).expand(B, -1, -1)
+        grid_y = grid_y.unsqueeze(0).expand(B, -1, -1)
+
+        if direction == "horizontal":
+            displacement = amplitude * torch.sin(
+                2 * math.pi * frequency * grid_x + phase
+            )
+            grid_y_new = grid_y + displacement
+            grid_x_new = grid_x
+        else:
+            displacement = amplitude * torch.sin(
+                2 * math.pi * frequency * grid_y + phase
+            )
+            grid_x_new = grid_x + displacement
+            grid_y_new = grid_y
+
+        grid = torch.stack([grid_x_new, grid_y_new], dim=-1)
+        grid = torch.clamp(grid, -1, 1)
+
+        if channel == "all":
+            warped = F.grid_sample(
+                x, grid, mode="bilinear", padding_mode="border", align_corners=False
+            )
+        else:
+            idx = int(channel[1])
+
+            single = x[:, idx : idx + 1, :, :]
+            warped_single = F.grid_sample(
+                single,
+                grid,
+                mode="bilinear",
+                padding_mode="border",
+                align_corners=False,
+            )
+            x[:, idx : idx + 1, :, :] = warped_single
+            warped = x
+
+        new_latent["samples"] = warped
         return (new_latent,)
