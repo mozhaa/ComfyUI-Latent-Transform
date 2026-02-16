@@ -1,20 +1,23 @@
-from .channels import (
+from .basic import (
     LTAdd,
-    LTChannelAdd,
-    LTChannelMultiply,
+    LTBlur,
+    LTGaussianNoise,
     LTMultiply,
+    LTSharpen,
 )
 
 NODE_CLASS_MAPPINGS = {
     "LT: Multiply": LTMultiply,
     "LT: Add": LTAdd,
-    "LT: Channel Multiply": LTChannelMultiply,
-    "LT: Channel Add": LTChannelAdd,
+    "LT: Blur": LTBlur,
+    "LT: Sharpen": LTSharpen,
+    "LT: Gaussian Noise": LTGaussianNoise,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "LT: Multiply": "LT: Multiply",
     "LT: Add": "LT: Add",
-    "LT: Channel Multiply": "LT: Channel Multiply",
-    "LT: Channel Add": "LT: Channel Add",
+    "LT: Blur": "LT: Blur",
+    "LT: Sharpen": "LT: Sharpen",
+    "LT: Gaussian Noise": "LT: Gaussian Noise",
 }
